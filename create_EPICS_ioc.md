@@ -1,4 +1,4 @@
-﻿﻿# Exercise: Create an example IOC on EPICS
+﻿### Exercise: Create an example IOC on EPICS
 
 *Goal*: To create a simple Input/Output Controller (IOC) using EPICS.
 
