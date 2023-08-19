@@ -1,8 +1,6 @@
-﻿### Exercise: Create an example IOC on EPICS
+﻿﻿# Exercise: Create an example IOC on EPICS
 
 *Goal*: To create a simple Input/Output Controller (IOC) using EPICS.
-
-
 
 **Basic Terminologies**
 
@@ -65,7 +63,7 @@ dbgrep("*led")
 
 1. Prepare the EPICS environment
    
-      1.1. Install EPICS base and test
+   1.1. Install EPICS base and test
    
    - Create EPICS directory and clone, download, and compile epics-base as follows. Note that the compilation process generally takes a while depending on your machine configurations. 
      
@@ -78,24 +76,22 @@ dbgrep("*led")
      ```
    
    - Include the path into either .profile or .bashrc. In this case, I am including the path into bashrc.
-     
-     Open the bashrc editor using the command:
+   
+   - Open the bashrc editor using the command:
      
      ```
      gedit ~/.bashrc
      ```
-     
-     Remember to click on the Save button before quitting.
+   
+   - Remember to click on the Save button before quitting.
    
    - To execute the changes, type source ~/.bashrc.
    
-   - To check if EPICS has been installed correctly, type softIoc. You should see the following.
+   - To check if EPICS has been installed correctly, type softIoc. 
    
-   - To check for records, type dbl. In this case, nothing is listed because no records have been created yet
+   - To check for records, type dbl. In this case, nothing is listed because no records have been created yet.
    
    - To exit, press ctrl + c.
-     
-     
    
    1.2. Create a dummy record
    
@@ -106,8 +102,8 @@ dbgrep("*led")
      ```
      record(ai, "sensor:temperature")
      {
-             field(DESC, "sensor temperature reading.")
-             field(VAL, 25)
+            field(DESC, "sensor temperature reading.")
+            field(VAL, 25)
      }
      ```
    
@@ -130,8 +126,6 @@ dbgrep("*led")
      caget('sensor:temperature.VAL')
      caget('sensor:temperature.DESC')
      ```
-   
-   
    
    1.3. Create an Ioc
    
