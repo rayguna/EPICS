@@ -2,52 +2,9 @@
 
 *Goal*: To create a simple Input/Output Controller (IOC) using EPICS.
 
-**Basic Terminologies**
-
-EPICS: EPICS stands for Experimental Physics and Industrial Control System. An EPICS control system can contain one or more IOCS and Client Workstations (CWS) that can communicate over a local area network (LAN). Hence, it enables the creation of servers and client applications.
-
-Channel Access: Arbitrary number of clients can access both CWs and IOCs, and a client can communicate with an arbitrary number of servers.
-
-Process Variables (PV): EPICS process variables exist as objects abbreviated as PV. A PV object has both methods and attributes to access its properties. Clients communicate with the control system's IOC using the PV objects to monitor and control the various aspects of the system. 
-
-Database: The EPICS process database is a collection of different types of records. Each record in the database represents a PV, which can be monitored, controlled, or manipulated. 
-
-You can get the comprehensive list of the records using the command dbl. If you are overwhelmed with the result, you can use another command called dbgrep("<pattern>") to match a pattern. Here are some examples. Also see reference 5 below for more information.
-
-```
-dbgrep("*led*")
-dbgrep("*led")
-```
-
-**References**:
-
-1. [Creation of an Input/Output Controller (IOC) &mdash; EPICS How-Tos documentation](https://docs.epics-controls.org/projects/how-tos/en/latest/getting-started/creating-ioc.html)
-
-2. [Getting Started - EPICS Controls](https://epics-controls.org/resources-and-support/documents/getting-started/)
-
-3. [EPICS Process Database Concepts &mdash; EPICS Documentation documentation](https://docs.epics-controls.org/en/latest/guides/EPICS_Process_Database_Concepts.html#database-links-to-passive-record)
-
-4. https://epics.anl.gov/EpicsDocumentation/AppDevManuals/AppDevGuide/3.12BookFiles/chapter2.html
-
-5. https://epics.anl.gov/base/R3-14/12-docs/AppDevGuide/node10.html#SECTION001020000000000000000
-
-6. [PyEpics Overview &#8212; Epics Channel Access for Python](https://pyepics.github.io/pyepics/overview.html#quick-start)
-
-7. https://epics.anl.gov/base/R3-14/12-docs/AppDevGuide/node3.html#SECTION00360000000000000000
-
-8. [Creation of an Input/Output Controller (IOC) &mdash; EPICS How-Tos documentation](https://docs.epics-controls.org/projects/how-tos/en/latest/getting-started/creating-ioc.html)
-
-9. [EPICS serial communication with Arduino: creation of project, protocol file, database... · GitHub](https://gist.github.com/inigoalonso/99d9076c672661a4b821)
-
-10. [Getting Started - EPICS Controls](https://epics-controls.org/resources-and-support/documents/getting-started/)
-
-11. Volker Ziemann, "A Hands-On Course in Sensors Using the Arduino and Raspberry Pi (Series in Sensors)", CRC Press, 1st Ed., 2018.
-
-***
-
 ##### Overview
 
-1. Prepare the EPICS environment.
+1. Prepare the EPICS environment
    
    1.1. Install EPICS base and test
    
@@ -233,50 +190,75 @@ dbgrep("*led")
      
      - Finally, while still in the same directory (i.e., ../StreamDevice/configure), type make. Make sure that no error messages are generated. If so, note the error and fix the contents of the RELEASE file accordingly. 
 
-4- Modify our Ioc to include the Asyn package and StreamDevice [8]
-
-- **Stop!** Work is in progress to troubleshoot issue with successfully compiling the makefile to include the stream and asyn packages. I may have to re-make testIoc from scratch to include the Asyn and StreamDevice packages.
-
-- On the terminal, navigate to `$HOME/EPICS/IOCs/testIoc/testIocApp/src/`
-
-- Type gedit Makefile and add the following above the section `Finally link IOC to the EPICS Base libraries`.
-  
-  ```
-  #add asyn and streamDevice to this IOC production libs
-  testIOC_LIBS += stream
-  testIOC_LIBS += asyn
-  ```
-
-- Next, open another file called xxxSupport.dbd, which is included in the Makefile. Include stream.dbd and asyn.dbd. The xxxSupport.dbd file should look like the following.
-  
-  ```
-  include "xxxRecord.dbd"
-  device(xxx,CONSTANT,devXxxSoft,"SoftChannel")
-  
-  #
-  include "stream.dbd"
-  include "asyn.dbd"
-  registrar(drvAsynIPPortRegisterCommands)
-  registrar(drvAsynSerialPortRegisterCommands)
-  registrar(vxi11RegisterCommands)
-  ```
-
-- Next, you need to specify the paths to ASYN and STREAM in the testIoc/configure/RELEASE file under the section called variables and paths to dependent modules as follows. Remember to include the path definition to HOME.
-  
-  ```
-  # Variables and paths to dependent modules:
-  HOME=/home/your_username
-  SUPPORT = ${HOME}/EPICS/support
-  ASYN=$(SUPPORT)/asyn
-  STREAM=$(SUPPORT)/stream
-  ```
-
-- Next, navigate to IOCs/testIoc. 
-
-- Since we have previously run the make command, we must first call the `make distclean`, followed by the `make` command.
-
-- Note that if you run the make distclean command in the IOCs/testIoc/configure folder, you will receive an error message, `make: *** No rule to make target 'distclean'. Stop`. Make sure to address any error messages before proceeding.
-
-- One common error is caused by some of the files being write protected. To overcome this error, go up to the parent directory (e.g., `$HOME` or the home directory) and type `chmod -R 777` EPICS.
-
-- Finally, type `make`. Likewise, make sure to address any error messages before proceeding.
+4. Modify our Ioc to include the Asyn package and StreamDevice [8]
+   
+   - **Stop!** This section is a work in progress. I have not been able to include the Asyn and StreamDevice packages to generate a working Ioc.
+   
+   - I encountered Error 2 and unable to identify the issue while making modifications to the various files, so I decide to delete the testIoc folder and restart from scratch.
+   
+   - Follow the instructions in section 1.3 to re-make the testIoc. In section 1.3, we were able to create a functional Ioc that contains the example records which can be called with the command `dbl`. Here, we will further incorporate the Asyn and StreamDevice packages to the Ioc.   
+   
+   - Re-make testIoc:
+     
+     - To re-make testIoc, first delete the entire testIoc folder while in the parent directory, `$HOME/EPICS/IOCs`, using the command rm -R testIoc. Then, type:
+       
+       ```
+       mkdir testIoc
+       cd testIoc
+       makeBaseApp.pl -t example testIoc
+       makeBaseApp.pl -i -t example testIoc
+       Application name? <just hit return>
+       make
+       ```
+   
+   - To link testIoc to Asyn and StreamDevice, it must load asyn.dbd and stream.dbd:
+     
+     - On the terminal, type `cd testIocApp/src` to navigate to `$HOME/EPICS/IOCs/testIoc/testIocApp/src/`
+     
+     - Type `gedit Makefile` and below the section `Link in the code from our support library` add the following. Save the file before closing.
+       
+       ```
+       #add asyn and StreamDevice to this IOC production libs
+       testIoc_LIBS += stream
+       testIoc_LIBS += asyn
+       ```
+   
+   - Next, open another file within the same directory called xxxSupport.dbd using the command `gedit xxxSupport`. This file is referred to in the Makefile. Include stream.dbd and asyn.dbd. The xxxSupport.dbd file should look like the following. Save the file before closing.
+     
+     ```
+     include "xxxRecord.dbd"
+     device(xxx,CONSTANT,devXxxSoft,"SoftChannel")
+     
+     #
+     include "stream.dbd"
+     include "asyn.dbd"
+     registrar(drvAsynIPPortRegisterCommands)
+     registrar(drvAsynSerialPortRegisterCommands)
+     registrar(vxi11RegisterCommands)
+     ```
+   
+   - Next, you need to specify the paths to ASYN and STREAM in the testIoc/configure/RELEASE file under the section called `variables and paths to dependent modules` as follows. Remember to include the path definition to HOME.
+     
+     ```
+     # Variables and paths to dependent modules:
+     HOME=/home/your_username
+     SUPPORT = ${HOME}/EPICS/support
+     ASYN=$(SUPPORT)/asyn
+     STREAM=$(SUPPORT)/stream
+     ```
+   
+   - Next, navigate to `IOCs/testIoc`. 
+   
+   - If you have previously run the make command, you must first call the `make distclean`, followed by the `make` command.
+   
+   - Note that if you run the make distclean command in the IOCs/testIoc/configure folder, you will receive an error message, `make: *** No rule to make target 'distclean'. Stop`. Make sure to address any error messages before proceeding.
+   
+   - One common error is caused by some of the files being write protected. To overcome this error, go up to the parent directory (e.g., `$HOME` or the home directory) and type `chmod -R 777` EPICS.
+   
+   - Finally, type `make`. Likewise, make sure to address any error messages before proceeding.
+   
+   - In my case, I get Error 255 and Error 2 since it can't find stream.dbd while reading xxxSupport.dbd. 
+   
+   - Commenting out the above addition to the Makefile, xxxSupport, and RELEASE files and running the make distclean followed by the make commands, however, was successful.
+   
+   - To be continued... 
