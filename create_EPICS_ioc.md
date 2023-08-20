@@ -233,54 +233,50 @@ dbgrep("*led")
      
      - Finally, while still in the same directory (i.e., ../StreamDevice/configure), type make. Make sure that no error messages are generated. If so, note the error and fix the contents of the RELEASE file accordingly. 
 
-4- Modify our Ioc to include the asyn package and StreamDevice [8]
-   
-   - **Stop!** Work is in progress to troubleshoot issue with successfully compiling the makefile to include the stream and asyn packages.
-   
-   - On the terminal, navigate to `$HOME/EPICS/IOCs/testIoc/testIocApp/src/`
-   
-   - Type gedit xxxSupport.dbd and add the following.
-     
-     ```
-     #add asyn and streamDevice to this IOC production libs
-     testIOC_LIBS += stream
-     testIOC_LIBS += asyn
-     ```
-   
-   - Also include stream.dbd and asyn.dbd. xxxSupport.dbd should look as the following.
-     
-     ```
-     include "xxxRecord.dbd"
-     device(xxx,CONSTANT,devXxxSoft,"SoftChannel")
-     
-     #add asyn and streamDevice to this IOC production libs
-     testIOC_LIBS += stream
-     testIOC_LIBS += asyn
-     
-     #
-     include "stream.dbd"
-     include "asyn.dbd"
-     registrar(drvAsynIPPortRegisterCommands)
-     registrar(drvAsynSerialPortRegisterCommands)
-     registrar(vxi11RegisterCommands)
-     ```
-   
-   - Next, you need to specify the paths to ASYN and STREAM in testIoc/configure/RELEASE file under the section called variables and paths to dependent modules as follows. Remember to include the path definition to HOME.
-     
-     ```
-     # Variables and paths to dependent modules:
-     HOME=/home/your_username
-     SUPPORT = ${HOME}/EPICS/support
-     ASYN=$(SUPPORT)/asyn
-     STREAM=$(SUPPORT)/stream
-     ```
-   
-   - Next, navigate to IOCs/testIoc. 
-   
-   - Since we have previously run the make command, we must first call the `make distclean`, followed by the `make` command.
-   
-   - Note that if you run the make distclean command in the IOCs/testIoc/configure folder, you will receive an error message, `make: *** No rule to make target 'distclean'. Stop`. Make sure to address any error messages before proceeding.
-   
-   - One common error is caused by some of the files being write protected. To overcome this error, go up to the parent directory (e.g., `$HOME` or the home directory) and type `chmod -R 777` EPICS.
-   
-   - Finally, type `make`. Likewise, make sure to address any error messages before proceeding.
+4- Modify our Ioc to include the Asyn package and StreamDevice [8]
+
+- **Stop!** Work is in progress to troubleshoot issue with successfully compiling the makefile to include the stream and asyn packages. I may have to re-make testIoc from scratch to include the Asyn and StreamDevice packages.
+
+- On the terminal, navigate to `$HOME/EPICS/IOCs/testIoc/testIocApp/src/`
+
+- Type gedit Makefile and add the following above the section `Finally link IOC to the EPICS Base libraries`.
+  
+  ```
+  #add asyn and streamDevice to this IOC production libs
+  testIOC_LIBS += stream
+  testIOC_LIBS += asyn
+  ```
+
+- Next, open another file called xxxSupport.dbd, which is included in the Makefile. Include stream.dbd and asyn.dbd. The xxxSupport.dbd file should look like the following.
+  
+  ```
+  include "xxxRecord.dbd"
+  device(xxx,CONSTANT,devXxxSoft,"SoftChannel")
+  
+  #
+  include "stream.dbd"
+  include "asyn.dbd"
+  registrar(drvAsynIPPortRegisterCommands)
+  registrar(drvAsynSerialPortRegisterCommands)
+  registrar(vxi11RegisterCommands)
+  ```
+
+- Next, you need to specify the paths to ASYN and STREAM in the testIoc/configure/RELEASE file under the section called variables and paths to dependent modules as follows. Remember to include the path definition to HOME.
+  
+  ```
+  # Variables and paths to dependent modules:
+  HOME=/home/your_username
+  SUPPORT = ${HOME}/EPICS/support
+  ASYN=$(SUPPORT)/asyn
+  STREAM=$(SUPPORT)/stream
+  ```
+
+- Next, navigate to IOCs/testIoc. 
+
+- Since we have previously run the make command, we must first call the `make distclean`, followed by the `make` command.
+
+- Note that if you run the make distclean command in the IOCs/testIoc/configure folder, you will receive an error message, `make: *** No rule to make target 'distclean'. Stop`. Make sure to address any error messages before proceeding.
+
+- One common error is caused by some of the files being write protected. To overcome this error, go up to the parent directory (e.g., `$HOME` or the home directory) and type `chmod -R 777` EPICS.
+
+- Finally, type `make`. Likewise, make sure to address any error messages before proceeding.
