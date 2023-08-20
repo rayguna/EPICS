@@ -59,6 +59,8 @@ dbgrep("*led")
 
 3. Install StreamDevice
 
+4. Modify our Ioc to include the asyn package and StreamDevice
+
 ***
 
 1. Prepare the EPICS environment
@@ -167,4 +169,118 @@ dbgrep("*led")
      cd asyn
      ```
    
-   - To be continued...
+   - Navigate to `$HOME/EPICS/support/asyn/configure` and type gedit RELEASE.
+   
+   - Replace the contents of the file with the following.
+     
+     ```
+     #RELEASE Location of external products
+     HOME=/home/your_username
+     SUPPORT=$(HOME)/EPICS/support
+     -include $(TOP)/../configure/SUPPORT.$(EPICS_HOST_ARCH)
+     # IPAC is only necessary if support for Greensprings IP488 is required
+     # IPAC release V2-7 or later is required.
+     #IPAC=$(SUPPORT)/ipac-2-14
+     # SEQ is required for testIPServer
+     #SNCSEQ=$(SUPPORT)/seq-2-2-5
+     # EPICS_BASE 3.14.6 or later is required
+     EPICS_BASE=$(HOME)/EPICS/epics-base
+     -include $(TOP)/../configure/EPICS_BASE.$(EPICS_HOST_ARCH)
+     ```
+   
+   - Note to change your_username to yours. Also note that IPAC=... and SNCSEQ=... are commented.
+   
+   - Next, while still in the same directory (i.e., ../asyn/configure), type make. Make sure that no error messages are generated. If so, note the error and fix the contents of the RELEASE file accordingly.
+
+3. Install StreamDevice
+   
+   - Go back to the EPICS/support directory, download and install StreamDevice, navigate into the newly created package, and remove GNUmakefile as follows.
+     
+     ```
+     cd $HOME/EPICS/support
+     git clone https://github.com/paulscherrerinstitute/StreamDevice.git
+     cd StreamDevice/
+     rm GNUmakefile
+     ```
+   
+   - Navigate to `$HOME/EPICS/support/StreamDevice/configure` and type gedit RELEASE.
+   
+   - Modify the contents of the file as follows:
+     
+     - Add HOME=/home/your_username
+     
+     - Set EPICS_BASE as: `EPICS_BASE=$(HOME)/EPICS/epics-base`
+     
+     - Place the above codes above TEMPLATE_TOP in which EPICS_BASE is stated.
+     
+     - Set ASYN as: `ASYN=$(SUPPORT)/asyn`
+     
+     - Comment out CALC=... and PRCE=... CALC requires you to install the calc module from SynAps first, which is skipped in this exercise.  
+     
+     - PCRE is used for regular expression matching for which you need to define the header file and library as follows.
+       
+       ```
+       PRCE_INCLUDE=/usr/include/pcre
+       PCRE_LIB=/usr/lib
+       ```
+     
+     - For 64 bit, define it as follows. You can navigate into the respective paths to verify their existence.
+       
+       ```
+       PCRE_INCLUDE=/usr/include/pcre
+       PCRE_LIB=/usr/lib64
+       ```
+     
+     - Finally, while still in the same directory (i.e., ../StreamDevice/configure), type make. Make sure that no error messages are generated. If so, note the error and fix the contents of the RELEASE file accordingly. 
+
+4- Modify our Ioc to include the asyn package and StreamDevice [8]
+   
+   - **Stop!** Work is in progress to troubleshoot issue with successfully compiling the makefile to include the stream and asyn packages.
+   
+   - On the terminal, navigate to `$HOME/EPICS/IOCs/testIoc/testIocApp/src/`
+   
+   - Type gedit xxxSupport.dbd and add the following.
+     
+     ```
+     #add asyn and streamDevice to this IOC production libs
+     testIOC_LIBS += stream
+     testIOC_LIBS += asyn
+     ```
+   
+   - Also include stream.dbd and asyn.dbd. xxxSupport.dbd should look as the following.
+     
+     ```
+     include "xxxRecord.dbd"
+     device(xxx,CONSTANT,devXxxSoft,"SoftChannel")
+     
+     #add asyn and streamDevice to this IOC production libs
+     testIOC_LIBS += stream
+     testIOC_LIBS += asyn
+     
+     #
+     include "stream.dbd"
+     include "asyn.dbd"
+     registrar(drvAsynIPPortRegisterCommands)
+     registrar(drvAsynSerialPortRegisterCommands)
+     registrar(vxi11RegisterCommands)
+     ```
+   
+   - Next, you need to specify the paths to ASYN and STREAM in testIoc/configure/RELEASE file under the section called variables and paths to dependent modules as follows. Remember to include the path definition to HOME.
+     
+     ```
+     # Variables and paths to dependent modules:
+     HOME=/home/your_username
+     SUPPORT = ${HOME}/EPICS/support
+     ASYN=$(SUPPORT)/asyn
+     STREAM=$(SUPPORT)/stream
+     ```
+   
+   - Next, navigate to IOCs/testIoc. 
+   
+   - Since we have previously run the make command, we must first call the `make distclean`, followed by the `make` command.
+   
+   - Note that if you run the make distclean command in the IOCs/testIoc/configure folder, you will receive an error message, `make: *** No rule to make target 'distclean'. Stop`. Make sure to address any error messages before proceeding.
+   
+   - One common error is caused by some of the files being write protected. To overcome this error, go up to the parent directory (e.g., `$HOME` or the home directory) and type `chmod -R 777` EPICS.
+   
+   - Finally, type `make`. Likewise, make sure to address any error messages before proceeding.
